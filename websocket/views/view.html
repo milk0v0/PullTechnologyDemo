@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <style>
+        html,
+        body,
+        textarea {
+            margin: 0;
+            padding: 0;
+        }
+
+        textarea {
+            width: 99.5%;
+            resize: none;
+            font-size: 32px;
+        }
+
+        .chat {
+            height: 80vh;
+            color: #000;
+        }
+
+        .input {
+            height: 18vh;
+        }
+    </style>
+</head>
+
+<body>
+    <textarea id="chat" class="chat" disabled></textarea>
+    <textarea id="input" placeholder="回车输入" class="input"></textarea>
+</body>
+<script>
+    const socket = io('/');
+    const chat = document.querySelector('#chat');
+    const input = document.querySelector('#input');
+
+    input.onkeydown = e => {
+        if (e.keyCode === 13) {
+            if (e.ctrlKey) {
+                input.value += '\n';
+                e.preventDefault();
+            } else if (e.keyCode === 13) {
+                chat.value += '我说：' + input.value + '\n';
+                socket.emit('speak', input.value);
+                input.value = '';
+                input.focus();
+            }
+            e.preventDefault();
+        }
+    }
+
+    socket.on('hello', data => {
+        chat.value += data + '\n';
+    });
+    socket.on('speak', data => {
+        chat.value += data + '\n';
+    });
+</script>
+
+</html>
